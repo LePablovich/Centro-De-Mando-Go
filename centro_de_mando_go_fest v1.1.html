@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Mando: GO Fest 2026 - LePablovich.web</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS constraints for Chart Container and custom scrollbars */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 250px;
+            max-height: 300px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        
+        /* Smooth scrolling */
+        html { scroll-behavior: smooth; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f5f5f4; }
+        ::-webkit-scrollbar-thumb { background: #d6d3d1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a8a29e; }
+
+        /* Animation for alerts */
+        @keyframes pulse-border {
+            0% { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+            70% { border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { border-color: rgba(239, 68, 68, 0.4); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .alert-card {
+            border: 2px solid;
+            animation: pulse-border 2s infinite;
+        }
+
+        /* Pokeball Watermark CSS */
+        .pokeball-watermark {
+            position: absolute;
+            right: -20px;
+            bottom: -20px;
+            width: 140px;
+            height: 140px;
+            border: 12px solid rgba(0,0,0,0.04);
+            border-radius: 50%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .pokeball-watermark::after {
+            content: ''; position: absolute;
+            top: 50%; left: -5px; right: -5px;
+            height: 12px; background: rgba(0,0,0,0.04);
+            transform: translateY(-50%);
+        }
+        .pokeball-watermark::before {
+            content: ''; position: absolute;
+            top: 50%; left: 50%;
+            width: 36px; height: 36px;
+            border: 10px solid rgba(0,0,0,0.04);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background: transparent;
+            z-index: 1;
+        }
+
+        /* Custom Mini Pokeball Legend */
+        .mini-pokeball {
+            width: 18px; height: 18px;
+            border-radius: 50%;
+            border: 2px solid #1c1917;
+            background: linear-gradient(to bottom, var(--poke-color) 50%, white 50%);
+            position: relative;
+            flex-shrink: 0;
+        }
+        .mini-pokeball::after {
+            content: ''; position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 6px; height: 6px; background: white; border: 1px solid #1c1917; border-radius: 50%;
+        }
+        .mini-pokeball::before {
+            content: ''; position: absolute;
+            top: 50%; left: 0; right: 0; height: 2px; background: #1c1917; transform: translateY(-50%);
+        }
+        
+        /* Modal Content Animation */
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .modal-content-anim {
+            animation: modalFadeIn 0.3s ease-out forwards;
+        }
+    </style>
+    
+    </head>
+<body class="bg-stone-100 text-stone-800 font-sans antialiased bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4IiBoZWlnaHQ9IjgiPgo8cmVjdCB3aWR0aD0iOCIgaGVpZ2h0PSI4IiBmaWxsPSIjZjVmNWY0Ij48L3JlY3Q+CjxwYXRoIGQ9Ik0wIDBMOCA4Wk04IDBMMCA4WiIgc3Ryb2tlPSIjZTdlN2U0IiBzdHJva2Utd2lkdGg9IjEiPjwvcGF0aD4KPC9zdmc+')]">
+
+    <header class="bg-red-600 text-stone-50 py-6 px-4 shadow-lg sticky top-0 z-50 border-b-8 border-red-800 relative overflow-hidden">
+        <div class="absolute top-4 left-4 flex gap-2">
+            <div class="w-12 h-12 rounded-full bg-cyan-400 border-4 border-white shadow-inner flex items-center justify-center">
+                <div class="w-4 h-4 rounded-full bg-white opacity-60 absolute top-2 left-2"></div>
+            </div>
+            <div class="w-4 h-4 rounded-full bg-red-400 border-2 border-red-800 mt-1"></div>
+            <div class="w-4 h-4 rounded-full bg-yellow-400 border-2 border-red-800 mt-1"></div>
+            <div class="w-4 h-4 rounded-full bg-green-400 border-2 border-red-800 mt-1"></div>
+        </div>
+
+        <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4 mt-8 md:mt-0 pl-0 md:pl-20 relative z-10">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-black tracking-tight text-white drop-shadow-md uppercase italic">GO Fest 2026</h1>
+                <p class="text-red-200 text-sm mt-1 font-semibold">Sistema de Rastreo Avanzado | v1.0</p>
+            </div>
+            <div class="bg-red-900/50 backdrop-blur px-5 py-3 rounded-xl border border-red-500 text-sm shadow-inner">
+                <span class="font-bold text-red-200">Desarrollador:</span> LePablovich <br>
+                <span class="font-bold text-red-200">Enfoque:</span> Top-Down Priority (S > A > Resto)
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 py-8 space-y-12">
+
+        <section id="resumen" class="bg-white rounded-2xl shadow-sm border border-stone-200 p-6 md:p-8">
+            <h2 class="text-2xl font-bold text-stone-900 mb-4">🎯 Análisis de Prioridades</h2>
+            <p class="text-stone-600 mb-6 leading-relaxed">
+                Esta sección desglosa visualmente la estrategia <strong>Top-Down Priority</strong>. El objetivo principal es maximizar la captura de Pokémon Tier S y Tier A. La gráfica a continuación muestra la distribución total de objetivos marcados en el cronograma. Interactúa con el gráfico para ver la cantidad exacta de apariciones planificadas por categoría, lo que confirma que el enfoque debe estar fuertemente inclinado hacia los Tier S.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+                <div class="w-full flex flex-col items-center">
+                    <div class="chart-container">
+                        <canvas id="tierChart"></canvas>
+                    </div>
+                    <div id="chart-legend" class="grid grid-cols-2 gap-x-4 gap-y-3 mt-6 w-full max-w-sm mx-auto"></div>
+                </div>
+                
+                <div class="space-y-4">
+                    <h3 class="font-semibold text-lg border-b border-stone-200 pb-2 text-stone-800">Claves del Meta</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-4">
+                            <span class="shrink-0 w-24 bg-rose-100 text-rose-800 font-black px-2 py-1.5 rounded text-xs text-center border border-rose-200 shadow-sm uppercase tracking-wider">TIER S</span>
+                            <span class="text-sm text-stone-600 pt-0.5 leading-relaxed">Máxima prioridad. Incluye los debuts de <strong>Mega Mewtwo X/Y</strong>, Reyes de la Liga Master (<strong>Zacian, Necrozma</strong>) y los mejores atacantes (<strong>Rayquaza, Groudon, Kyogre</strong>). Gastar pases premium aquí.</span>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <span class="shrink-0 w-24 bg-amber-100 text-amber-800 font-black px-2 py-1.5 rounded text-xs text-center border border-amber-200 shadow-sm uppercase tracking-wider">TIER A</span>
+                            <span class="text-sm text-stone-600 pt-0.5 leading-relaxed">Excelentes alternativas. Formas Origen de Sinnoh y atacantes top como Kartana, Reshiram y Zekrom. Atacar si no hay Tier S cerca.</span>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <span class="shrink-0 w-24 bg-stone-100 text-stone-800 font-black px-2 py-1.5 rounded text-xs text-center border border-stone-300 shadow-sm uppercase tracking-wider flex items-center justify-center gap-1">ALERTAS</span>
+                            <span class="text-sm text-stone-600 pt-0.5 leading-relaxed">Presta especial atención a <strong>Necrozma, Palkia F. Origen y Xerneas</strong>. Aparecen en horarios incongruentes con sus tipos. ¡Mantén el radar abierto!</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="planificador" class="space-y-6">
+            <div>
+                <h2 class="text-2xl font-bold text-stone-900 mb-2">⏱️ Planificador de Incursiones en Vivo</h2>
+                <p class="text-stone-600 leading-relaxed mb-6">
+                    Utiliza este panel durante el evento. Selecciona el día actual y el bloque horario en el que te encuentras para filtrar instantáneamente los jefes de incursión activos. Las tarjetas están ordenadas de mayor a menor prioridad. Las colecciones especiales pueden expandirse para ver todos los objetivos secundarios.
+                </p>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm border border-stone-200 p-4 sticky top-[88px] z-40 bg-opacity-95 backdrop-blur">
+                <div class="flex flex-col md:flex-row justify-between gap-4 items-center">
+                    
+                    <div class="flex bg-stone-100 p-1 rounded-lg w-full md:w-auto">
+                        <button onclick="setDay('sabado')" id="btn-sabado" class="flex-1 md:flex-none px-6 py-2 rounded-md font-semibold transition-colors bg-white shadow text-stone-900">
+                            🟡 Sábado (11 Jul)
+                        </button>
+                        <button onclick="setDay('domingo')" id="btn-domingo" class="flex-1 md:flex-none px-6 py-2 rounded-md font-semibold transition-colors text-stone-500 hover:text-stone-700">
+                            🟢 Domingo (12 Jul)
+                        </button>
+                    </div>
+
+                    <div class="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+                        <button onclick="setBlock('b1')" id="btn-b1" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium border-2 border-stone-900 bg-stone-900 text-white transition-all">
+                            10:00 - 13:00
+                        </button>
+                        <button onclick="setBlock('b2')" id="btn-b2" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium border-2 border-stone-200 bg-white text-stone-600 hover:border-stone-300 transition-all">
+                            13:00 - 16:00
+                        </button>
+                        <button onclick="setBlock('b3')" id="btn-b3" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium border-2 border-stone-200 bg-white text-stone-600 hover:border-stone-300 transition-all">
+                            16:00 - 19:00
+                        </button>
+                    </div>
+
+                </div>
+                
+                <div class="mt-4 pt-3 border-t border-stone-100 flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-stone-500">
+                    <div class="flex items-center gap-2">
+                        <span id="habitat-icon" class="text-2xl drop-shadow-sm">🌋</span> 
+                        <span id="habitat-info" class="font-bold text-stone-700 tracking-wide uppercase text-xs md:text-sm">Hábitat: Pirotempestad</span>
+                    </div>
+                    <button onclick="getHabitatLore()" class="flex items-center gap-1.5 px-4 py-2 bg-gradient-to-r from-stone-800 to-stone-900 text-white hover:from-stone-700 hover:to-stone-800 rounded-lg font-bold shadow-md transition-all whitespace-nowrap w-full md:w-auto justify-center transform active:scale-95 text-xs">
+                        ✨ Analizar Hábitat
+                    </button>
+                </div>
+            </div>
+
+            <div id="raid-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                </div>
+
+        </section>
+
+    </main>
+
+    <footer class="bg-stone-900 text-stone-400 py-6 text-center text-sm mt-12">
+        <p>Desarrollado por LePablovich.web | GO Fest 2026 Global</p>
+    </footer>
+
+    <div id="gemini-modal" class="fixed inset-0 bg-stone-900/70 hidden items-center justify-center z-[100] px-4 backdrop-blur-sm transition-opacity opacity-0 flex">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl transform scale-95 transition-transform relative overflow-hidden border border-stone-200" id="gemini-modal-panel">
+            <div class="flex justify-between items-start mb-4 border-b border-stone-200 pb-4 relative z-10">
+                <h3 id="gemini-modal-title" class="text-xl font-black text-stone-900 flex items-center gap-2 uppercase tracking-wide">
+                    </h3>
+                <button onclick="closeGeminiModal()" class="bg-stone-100 text-stone-500 hover:text-red-600 hover:bg-red-50 rounded-full w-8 h-8 flex items-center justify-center text-2xl leading-none transition-colors">&times;</button>
+            </div>
+            <div id="gemini-modal-content" class="min-h-[80px] relative z-10">
+                </div>
+        </div>
+    </div>
+
+    <script>
+        // --- DATA STORAGE ---
+        const habitatsLoreData = {
+            "b1": {
+                icon: "🌋",
+                name: "Pirotempestad (Tipos Fuego, Eléctrico, Hielo)",
+                lore: "¡Escuadra, se prendió esto! En la Pirotempestad puro spam de Fuego, Eléctrico y Hielo.<br><br>Si ven clima **Soleado**, **Lluvia** o **Nieve** en el juego, activen inciensos porque los spawns van a estar chetadísimos. ¡A buscar esos hundos!"
+            },
+            "b2": {
+                icon: "🌌",
+                name: "Oleaje Astral (Tipos Psíquico, Fantasma, Agua)",
+                lore: "¡Pónganse truchas aquí! Este bloque místico nos trae tipos Psíquico, Fantasma y Agua.<br><br>Con clima de **Viento**, **Niebla** o **Lluvia** se forran de pokes nivel alto. ¡Atentos a los shinys raros de esta hora!"
+            },
+            "b3": {
+                icon: "🏔️",
+                name: "Cima Dracónica (Tipos Dragón, Volador, Roca)",
+                lore: "¡Llegamos a la hora pesada, gente! Puro Dragón, Volador y Roca dominando el mapa.<br><br>Si nos toca **Viento** o clima **Parcialmente Nublado**, tírenle a todo lo que se mueva porque es la mejor hora para sacar caramelos XL."
+            },
+            "dom_b1": {
+                icon: "🏜️",
+                name: "Dominios Terrestres (Tipos Tierra, Acero, Normal)",
+                lore: "¡A darle con todo el domingo! Arrancamos farmeando puro Tierra, Acero y Normal.<br><br>Clima **Soleado**, **Nieve** o **Parcialmente Nublado** nos va a dar un boost tremendo. ¡Ideal para farmear polvos y armar buenos equipos de PvP!"
+            },
+            "dom_b2": {
+                icon: "🍄",
+                name: "Anomalía Silvestre (Tipos Veneno, Bicho, Planta)",
+                lore: "¡Cuidado con la maleza, escuadra! Puro Veneno, Bicho y Planta inundando la zona.<br><br>Si el clima marca **Nublado**, **Lluvia** o **Soleado**, saldrán los mejores ejemplares salvajes. ¡No subestimen estos spawns que sirven muchísimo!"
+            },
+            "dom_b3": {
+                icon: "⚔️",
+                name: "Coliseo Crepuscular (Tipos Siniestro, Hada, Lucha)",
+                lore: "¡El cierre épico del evento! Puro peso pesado en el mapa: Siniestro, Hada y Lucha.<br><br>Si tenemos suerte con **Niebla** o clima **Nublado**, esto se va a descontrolar. ¡A gastar los últimos pases y pokébolas que nos queden en la bolsa!"
+            }
+        };
+
+        const scheduleData = {
+            sabado: {
+                habitats: {
+                    b1: habitatsLoreData.b1.name,
+                    b2: habitatsLoreData.b2.name,
+                    b3: habitatsLoreData.b3.name
+                },
+                icons: { b1: "🌋", b2: "🌌", b3: "🏔️" },
+                b1: [
+                    { name: "Mega Mewtwo X", imgId: "150-mega-x", shinyId: "150-mega-x", customImg: "https://www.pokepedia.fr/images/thumb/5/5a/M%C3%A9ga-Mewtwo_X-XY.png/1200px-M%C3%A9ga-Mewtwo_X-XY.png", customShinyImg: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/7f7c594b-4131-4a46-a947-7f51c8aafb29/defhwlp-98d4562d-1fa1-4ece-8863-8f0997ea3608.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiJcL2ZcLzdmN2M1OTRiLTQxMzEtNGE0Ni1hOTQ3LTdmNTFjOGFhZmIyOVwvZGVmaHdscC05OGQ0NTYyZC0xZmExLTRlY2UtODg2My04ZjA5OTdlYTM2MDgucG5nIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.8N4_xtuGr3YX-Lf8flPkaFGCkxYS0r-MKz6ptPgkmpA", tier: "S", type: "Psíquico/Lucha", notes: "Prioridad Absoluta.", alert: false, strategy: "¡El rey de las megas físicas está aquí para el desafío!<br><br>Aprovecha sus debilidades a los tipos:<br>[Hada] [Volador] [Fantasma]<br><br>Usando atacantes de élite como **Mega Rayquaza**, **Mega Gardevoir** o **Mewtwo Oscuro**. Reúne un grupo de al menos 5 entrenadores con equipos optimizados para asegurar la victoria en el tiempo límite. ¡Esquiva sus ataques cargados de tipo [Lucha] para maximizar la supervivencia de tus Pokémon!" },
+                    { name: "Reshiram", imgId: "643", shinyId: "643", tier: "A", type: "Dragón/Fuego", notes: "Prioridad si Mewtwo no está cerca.", alert: false, strategy: "Fuego abrasador y verdad absoluta.<br><br>Aprovecha sus debilidades a los tipos:<br>[Tierra] [Roca] [Dragón]<br><br>Usando atacantes de élite como **Groudon Primigenio**, **Mega Rayquaza** o **Garchomp**. Cuidado con sus ataques de [Fuego] si usas dragones. ¡Groudon es tu mejor carta aquí!" },
+                    { name: "Zekrom", imgId: "644", shinyId: "644", tier: "A", type: "Dragón/Eléctrico", notes: "Buen atacante eléctrico.", alert: false, strategy: "Ideales eléctricos a tope.<br><br>Aprovecha sus debilidades a los tipos:<br>[Tierra] [Hielo] [Dragón] [Hada]<br><br>Usando bestias como **Groudon Primigenio**, **Mega Rayquaza** o **Kyurem**. Evita usar atacantes de tipo [Volador] a toda costa." }
+                ],
+                b2: [
+                    { name: "Kyogre", imgId: "382", shinyId: "382", tier: "S", type: "Agua", notes: "Foco principal en este bloque. Busca XL y Shiny.", alert: false, strategy: "El creador de los océanos no perdona.<br><br>Aprovecha sus debilidades a los tipos:<br>[Planta] [Eléctrico]<br><br>Usando atacantes top como **Kartana**, **Mega Sceptile** o **Zekrom**. ¡Busca el 100% IV y su versión variocolor, vale totalmente la pena el farmeo!" },
+                    { name: "Necrozma", imgId: "800", shinyId: "800", customShinyImg: "https://tse1.mm.bing.net/th/id/OIP.9x6StFS8eP77rnyFxJfeWAAAAA?cb=thfc1falcon&rs=1&pid=ImgDetMain&o=7&rm=3", tier: "S", type: "Psíquico", notes: "Aparece fuera de tipo. Es TIER S absoluto. Si sale, dejen todo y atrápenlo.", alert: true, strategy: "El prisma que devora la luz se coló al evento.<br><br>Aprovecha sus debilidades a los tipos:<br>[Bicho] [Fantasma] [Siniestro]<br><br>Usando counters puros como **Tyranitar Oscuro**, **Giratina Origen** o **Hydreigon**. ¡Mucha precaución si trae ataques letales de [Acero]!" },
+                    { name: "Palkia F. Origen", imgId: "484-origin", customImg: "https://images.wikidexcdn.net/mwuploads/wikidex/thumb/0/05/latest/20220218024411/Palkia_origen.png/1298px-Palkia_origen.png", customShinyImg: "http://static.pokemonpets.com/images/monsters-images-800-800/6484-Shiny-Palkia-Origin.png", shinyId: "484-origin", tier: "A", type: "Agua/Dragón", notes: "Aparición irregular, excelente captura.", alert: true, strategy: "El señor del espacio está distorsionando las incursiones.<br><br>Aprovecha sus únicas debilidades a los tipos:<br>[Dragón] [Hada]<br><br>Usando atacantes veloces como **Mega Rayquaza**, **Mega Gardevoir** o **Salamence**. ¡Es una captura obligada para arrasar en PvP!"},
+                    { name: "Giratina F. Origen", imgId: "487-origin", shinyId: "487-origin", customImg: "https://images.wikidexcdn.net/mwuploads/wikidex/c/c0/latest/20150621182941/Giratina_origen.png", tier: "A", type: "Fantasma/Dragón", notes: "Solo si hay pases de sobra.", alert: false, strategy: "El guardián del Mundo Distorsión acecha.<br><br>Aprovecha sus debilidades a los tipos:<br>[Fantasma] [Hielo] [Dragón] [Siniestro] [Hada]<br><br>Usando tanques destructivos como **Mega Rayquaza**, **Mega Tyranitar** o **Hydreigon**. ¡Destrózalo sin piedad!" },
+                    
+                    // GRUPO EXPANDIBLE SÁBADO
+                    { 
+                        isGroup: true,
+                        groupId: "sabado-b2-respaldo",
+                        name: "Escuadrón Místico", 
+                        tier: "C", 
+                        notes: "Toca para desplegar a Lunala y los Megas de apoyo nocturnos.", 
+                        subPokemon: [
+                            { name: "Lunala", imgId: "792", shinyId: "792", customImg: "https://images.wikidexcdn.net/mwuploads/wikidex/thumb/9/9d/latest/20160602143431/Lunala.png/1200px-Lunala.png", tier: "C", type: "Psíquico/Fantasma", notes: "Evolución final de Cosmog.", alert: false, isSubCard: true, strategy: "El emisario de la luna bajó a las incursiones.<br><br>Tiene debilidad extrema (x4) a los tipos:<br>[Fantasma] [Siniestro]<br><br>Usando monstruos como **Mega Tyranitar**, **Mega Gengar** o **Hydreigon**. ¡La hacen polvo en segundos si van al menos 3 entrenadores juntos!" },
+                            { name: "Mega Gardevoir", imgId: "282-mega", shinyId: "282-mega", customImg: "https://images.wikidexcdn.net/mwuploads/wikidex/1/13/latest/20210224062617/Mega-Gardevoir_Masters.png", tier: "C", type: "Psíquico/Hada", notes: "Excelente atacante de tipo Hada.", alert: false, isSubCard: true, strategy: "Gracia y poder destructivo en una sola Mega.<br><br>Aprovecha sus debilidades a los tipos:<br>[Veneno] [Fantasma] [Acero]<br><br>Usando líderes de daño como **Mega Metagross**, **Mega Gengar** o **Nihilego**. Bájala rápido antes de que barra a tu equipo de un golpe." },
+                            { name: "Mega Gengar", imgId: "94-mega", shinyId: "94-mega", customImg: "https://sg.portal-pokemon.com/play/resources/pokedex/img/pm/933fa0ef096191382ab20f5d6597ac7f8fbe336a.png", tier: "C", type: "Fantasma/Veneno", notes: "El cañón de cristal Fantasma definitivo.", alert: false, isSubCard: true, strategy: "Pesadilla sombría súper veloz.<br><br>Aprovecha sus debilidades a los tipos:<br>[Tierra] [Fantasma] [Psíquico] [Siniestro]<br><br>Usando atacantes formidables como **Mewtwo**, **Groudon Primigenio** o **Mega Tyranitar**. Limpiarán el campo antes de que te des cuenta." }
+                        ]
+                    }
+                ],
+                b3: [
+                    { name: "Rayquaza", imgId: "384", shinyId: "384", tier: "S", type: "Dragón/Volador", notes: "Máxima prioridad.", alert: false, strategy: "El señor indiscutible de los cielos.<br><br>Tiene debilidad doble (x4) al tipo:<br>[Hielo]<br><br>Usando el poder gélido de **Mega Glalie**, **Darmanitan de Galar** o **Mamoswine Oscuro**. ¡Cae facilísimo si van al menos 2 entrenadores bien armados de puro hielo!" },
+                    { name: "Groudon", imgId: "383", shinyId: "383", tier: "S", type: "Tierra", notes: "Máxima prioridad.", alert: false, strategy: "El creador de los continentes está furioso.<br><br>Aprovecha sus debilidades a los tipos:<br>[Agua] [Planta] [Hielo]<br><br>Usando a **Kyogre Primigenio**, **Mega Swampert** o **Kartana**. ¡Ten muchísimo cuidado de que no te sorprenda con su Rayo Solar si usas tipo [Agua]!" },
+                    { name: "Yveltal", imgId: "717", shinyId: "717", tier: "B", type: "Siniestro/Volador", notes: "Alternativa sólida.", alert: false, strategy: "El ave de la destrucción inminente.<br><br>Aprovecha sus debilidades a los tipos:<br>[Roca] [Eléctrico] [Hielo] [Hada]<br><br>Usando a **Xurkitree**, **Zekrom** o **Mega Diancie**. Son atacantes perfectos para detener su furia en el aire." },
+                    { name: "Xerneas", imgId: "716", shinyId: "716", tier: "B", type: "Hada", notes: "Mantén el radar abierto por si sale fuera de su horario lógico.", alert: true, strategy: "El dador de vida apareció fuera de su horario oficial.<br><br>Aprovecha sus debilidades a los tipos:<br>[Veneno] [Acero]<br><br>Usando la fuerza bruta de **Mega Metagross Oscuro**, **Nihilego** o **Metagross**. Es súper tanque, así que vayan bien armados y en grupo." }
+                ]
+            },
+            domingo: {
+                habitats: {
+                    b1: habitatsLoreData.dom_b1.name,
+                    b2: habitatsLoreData.dom_b2.name,
+                    b3: habitatsLoreData.dom_b3.name
+                },
+                icons: { b1: "🏜️", b2: "🍄", b3: "⚔️" },
+                b1: [
+                    { name: "Mega Mewtwo Y", imgId: "150-mega-y", shinyId: "150-mega-y", customImg: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/150_f3.png", tier: "S", type: "Psíquico", notes: "Prioridad absoluta.", alert: false, strategy: "Poder psíquico puro y daño brutal en área.<br><br>Aprovecha sus debilidades a los tipos:<br>[Bicho] [Fantasma] [Siniestro]<br><br>Usando a **Mega Tyranitar**, **Giratina Origen** o **Hydreigon** para liderar la carga. ¡Pega durísimo, así que asegúrense de esquivar bien sus cargados!" },
+                    { name: "Dialga F. Origen", imgId: "483-origin", shinyId: "483-origin", customImg: "https://images.wikidexcdn.net/mwuploads/wikidex/thumb/7/73/latest/20220218024303/Dialga_origen.png/1200px-Dialga_origen.png", tier: "A", type: "Acero/Dragón", notes: "Excelente para PvP.", alert: false, strategy: "Quien controla el tiempo se impone en la arena.<br><br>Aprovecha sus únicas debilidades a los tipos:<br>[Lucha] [Tierra]<br><br>Usando campeones como **Terrakion**, **Mega Lucario** o **Groudon Primigenio**. Es clave de victoria para la Liga Master, ¡asegúrenlo para su equipo!" },
+                    { name: "Kartana", imgId: "798", shinyId: "798", tier: "A", type: "Planta/Acero", notes: "Mejor atacante Planta.", alert: false, strategy: "La espada de papel ultraafilada.<br><br>Tiene debilidad doble (x4) al tipo:<br>[Fuego]<br><br>Usando a **Mega Charizard Y**, **Reshiram** o **Darmanitan**. Lo derriten en segundos. ¡Si van bien preparados, pueden ganarle entre 2 entrenadores solos!" },
+                    
+                    // GRUPO EXPANDIBLE DOMINGO
+                    { 
+                        isGroup: true,
+                        groupId: "domingo-b1-respaldo",
+                        name: "Megas de Hoenn", 
+                        tier: "B", 
+                        notes: "Toca para desplegar este escuadrón de fuerza bruta alternativa.", 
+                        subPokemon: [
+                            { name: "Mega Metagross", imgId: "376-mega", shinyId: "376-mega", customImg: "https://images.wikidexcdn.net/mwuploads/wikidex/thumb/3/30/latest/20141015112444/Mega-Metagross.png/1200px-Mega-Metagross.png", tier: "B", type: "Acero/Psíquico", notes: "Atacante top de Acero.", alert: false, isSubCard: true, strategy: "La supercomputadora de acero viviente.<br><br>Aprovecha sus debilidades a los tipos:<br>[Tierra] [Fantasma] [Fuego] [Siniestro]<br><br>Usando a **Reshiram**, **Giratina Origen** o **Groudon Primigenio**. Son opciones excelentes y bastante seguras para bajarlo rápidamente." },
+                            { name: "Mega Lucario", imgId: "448-mega", shinyId: "448-mega", customImg: "https://images.wikidexcdn.net/mwuploads/wikidex/thumb/1/1d/latest/20130810134543/Mega-Lucario.png/1200px-Mega-Lucario.png", tier: "B", type: "Lucha/Acero", notes: "Gran atacante Lucha.", alert: false, isSubCard: true, strategy: "Aura inquebrantable lista para pelear.<br><br>Aprovecha sus debilidades a los tipos:<br>[Lucha] [Tierra] [Fuego]<br><br>Usando el poder absoluto de **Reshiram**, **Groudon Primigenio** o **Terrakion**. Es el top indiscutible para destruirlo rápidamente." },
+                            { name: "Mega Tyranitar", imgId: "248-mega", shinyId: "248-mega", customImg: "https://veekun.com/dex/media/pokemon/sugimori/248-mega.png", tier: "B", type: "Roca/Siniestro", notes: "Monstruo absoluto Siniestro/Roca.", alert: false, isSubCard: true, strategy: "El tirano destructor del desierto.<br><br>Tiene debilidad doble (x4) al tipo:<br>[Lucha]<br><br>Usando a **Terrakion**, **Keldeo**, **Lucario** o **Conkeldurr**. Lo pulverizan antes de que use siquiera Roca Afilada." }
+                        ]
+                    }
+                ],
+                b2: [
+                    { name: "Necrozma", imgId: "800", shinyId: "800", tier: "S", type: "Psíquico", notes: "Aparece fuera de tipo. Es TIER S absoluto. Si sale, dejen todo y atrápenlo.", alert: true, strategy: "El prisma que devora la luz se coló al evento.<br><br>Aprovecha sus debilidades a los tipos:<br>[Bicho] [Fantasma] [Siniestro]<br><br>Usando counters puros como **Tyranitar Oscuro**, **Giratina Origen** o **Hydreigon**. ¡Mucha precaución si trae ataques letales de [Acero]!" },
+                    { name: "Mega Mewtwo Y", imgId: "150-mega-y", shinyId: "150-mega-y", customImg: "https://assets.pokemon.com/assets/cms2/img/pokedex/full/150_f3.png", tier: "S", type: "Psíquico", notes: "Prioridad alta.", alert: false, strategy: "Poder psíquico puro y daño brutal en área.<br><br>Aprovecha sus debilidades a los tipos:<br>[Bicho] [Fantasma] [Siniestro]<br><br>Usando a **Mega Tyranitar**, **Giratina Origen** o **Hydreigon** para liderar la carga. ¡Pega durísimo, así que asegúrense de esquivar bien sus cargados!" },
+                    { name: "Palkia F. Origen", imgId: "484-origin", customImg: "https://images.wikidexcdn.net/mwuploads/wikidex/thumb/0/05/latest/20220218024411/Palkia_origen.png/1298px-Palkia_origen.png", customShinyImg: "http://static.pokemonpets.com/images/monsters-images-800-800/6484-Shiny-Palkia-Origin.png", shinyId: "484-origin", tier: "A", type: "Agua/Dragón", notes: "Aparición irregular, excelente captura.", alert: true, strategy: "El señor del espacio está distorsionando las incursiones.<br><br>Aprovecha sus únicas debilidades a los tipos:<br>[Dragón] [Hada]<br><br>Usando atacantes veloces como **Mega Rayquaza**, **Mega Gardevoir** o **Salamence**. ¡Es una captura obligada para arrasar en PvP!"}
+                ],
+                b3: [
+                    { name: "Zacian", imgId: "888", shinyId: "888", tier: "S", type: "Hada", notes: "Rey de la Liga Master. Gasta aquí los pases restantes.", alert: false, strategy: "El guerrero valiente con su espada legendaria.<br><br>Aprovecha sus debilidades a los tipos:<br>[Veneno] [Acero]<br><br>Usando a **Mega Metagross**, **Nihilego** o **Dialga**. ¡Mega Metagross domina por completo este enfrentamiento sin sudar!" },
+                    { name: "Zamazenta", imgId: "889", shinyId: "889", tier: "A", type: "Lucha", notes: "Si ya se aseguró a Zacian.", alert: false, strategy: "El escudo estoico indomable.<br><br>Aprovecha sus debilidades a los tipos:<br>[Volador] [Psíquico] [Hada]<br><br>Usando a **Mega Rayquaza**, **Mewtwo Oscuro** o **Zacian**. ¡Puro daño neutro o súper efectivo para quebrar sus defensas de inmediato!" },
+                    { name: "Xerneas", imgId: "716", shinyId: "716", tier: "B", type: "Hada", notes: "Mantén el radar abierto por si sale fuera de su horario lógico.", alert: true, strategy: "El dador de vida apareció fuera de su horario oficial.<br><br>Aprovecha sus debilidades a los tipos:<br>[Veneno] [Acero]<br><br>Usando la fuerza bruta de **Mega Metagross Oscuro**, **Nihilego** o **Metagross**. Es súper tanque, así que vayan bien armados y en grupo." }
+                ]
+            }
+        };
+
+        // --- MAPA DE COLORES DE TIPOS POKEMON ---
+        const typeColorMap = {
+            "Fuego": "bg-orange-500 text-white", "Agua": "bg-blue-500 text-white", 
+            "Planta": "bg-green-500 text-white", "Eléctrico": "bg-yellow-400 text-stone-900", 
+            "Hielo": "bg-cyan-300 text-stone-900", "Lucha": "bg-red-700 text-white", 
+            "Veneno": "bg-purple-500 text-white", "Tierra": "bg-amber-600 text-white",
+            "Volador": "bg-indigo-300 text-stone-900", "Psíquico": "bg-pink-500 text-white", 
+            "Bicho": "bg-lime-500 text-stone-900", "Roca": "bg-yellow-700 text-white", 
+            "Fantasma": "bg-purple-800 text-white", "Dragón": "bg-indigo-600 text-white",
+            "Siniestro": "bg-stone-800 text-white", "Acero": "bg-slate-500 text-white", 
+            "Hada": "bg-pink-300 text-stone-900", "Normal": "bg-stone-400 text-white",
+            "Varios": "bg-stone-200 text-stone-600"
+        };
+
+        // --- STATE MANAGEMENT ---
+        let currentState = {
+            day: 'sabado',
+            block: 'b1'
+        };
+        let expandedGroups = new Set();
+        let flatPokemonData = {};
+
+        // Build quick lookup dictionary for strategies
+        function buildLookupTable() {
+            flatPokemonData = {};
+            ['sabado', 'domingo'].forEach(day => {
+                ['b1', 'b2', 'b3'].forEach(block => {
+                    scheduleData[day][block].forEach(p => {
+                        if (p.isGroup) {
+                            p.subPokemon.forEach(sub => flatPokemonData[sub.name] = sub);
+                        } else {
+                            flatPokemonData[p.name] = p;
+                        }
+                    });
+                });
+            });
+        }
+        buildLookupTable();
+
+        // --- CORE INTERACTION & RENDERING LOGIC ---
+        function setDay(day) {
+            currentState.day = day;
+            expandedGroups.clear();
+            
+            const btnSabado = document.getElementById('btn-sabado');
+            const btnDomingo = document.getElementById('btn-domingo');
+            
+            if (day === 'sabado') {
+                btnSabado.className = "flex-1 md:flex-none px-6 py-2 rounded-md font-semibold transition-colors bg-white shadow text-stone-900";
+                btnDomingo.className = "flex-1 md:flex-none px-6 py-2 rounded-md font-semibold transition-colors text-stone-500 hover:text-stone-700";
+            } else {
+                btnDomingo.className = "flex-1 md:flex-none px-6 py-2 rounded-md font-semibold transition-colors bg-white shadow text-stone-900";
+                btnSabado.className = "flex-1 md:flex-none px-6 py-2 rounded-md font-semibold transition-colors text-stone-500 hover:text-stone-700";
+            }
+            renderGrid();
+        }
+
+        function setBlock(blockId) {
+            currentState.block = blockId;
+            expandedGroups.clear();
+            
+            const blocks = ['b1', 'b2', 'b3'];
+            blocks.forEach(b => {
+                const btn = document.getElementById(`btn-${b}`);
+                if (b === blockId) {
+                    btn.className = "whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium border-2 border-stone-900 bg-stone-900 text-white transition-all";
+                } else {
+                    btn.className = "whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium border-2 border-stone-200 bg-white text-stone-600 hover:border-stone-300 transition-all";
+                }
+            });
+            renderGrid();
+        }
+
+        window.toggleGroup = function(groupId) {
+            if (expandedGroups.has(groupId)) {
+                expandedGroups.delete(groupId);
+            } else {
+                expandedGroups.add(groupId);
+            }
+            renderGrid();
+        };
+
+        function getTierStyles(tier) {
+            switch(tier) {
+                case 'S': return { bg: 'bg-rose-100', text: 'text-rose-800', border: 'border-rose-300', dot: '👑' };
+                case 'A': return { bg: 'bg-amber-100', text: 'text-amber-800', border: 'border-amber-300', dot: '⭐' };
+                case 'B': return { bg: 'bg-emerald-100', text: 'text-emerald-800', border: 'border-emerald-300', dot: '👍' };
+                case 'C': return { bg: 'bg-sky-100', text: 'text-sky-800', border: 'border-sky-300', dot: '🔄' };
+                default: return { bg: 'bg-stone-100', text: 'text-stone-800', border: 'border-stone-200', dot: '⚫' };
+            }
+        }
+
+        function renderTypeBadges(typeString, forTextContent = false) {
+            const types = typeString.split('/');
+            return types.map(t => {
+                const colorClass = typeColorMap[t.trim()] || "bg-stone-200 text-stone-800";
+                // Modificado para que se vea idéntico dentro del texto pero bien alineado
+                const displayClass = forTextContent ? "inline-flex items-center justify-center align-middle mx-0.5 text-[10px] transform -translate-y-px" : "text-[10px]";
+                return `<span class="${colorClass} px-2 py-0.5 rounded-md font-bold uppercase tracking-wider shadow-sm border border-black/10 ${displayClass}">${t.trim()}</span>`;
+            }).join('');
+        }
+
+        // Helper to replace brackets with badges and stars with bold text
+        function parseStrategyText(text) {
+            let parsed = text.replace(/\[(.*?)\]/g, (match, p1) => {
+                return renderTypeBadges(p1, true);
+            });
+            // Reemplaza **texto** por <strong>texto</strong> con estilo destacado
+            parsed = parsed.replace(/\*\*(.*?)\*\*/g, '<strong class="text-stone-900 font-black">$1</strong>');
+            return parsed;
+        }
+
+        function generateCardHTML(pokemon) {
+            const styles = getTierStyles(pokemon.tier);
+            const alertClass = pokemon.alert ? 'alert-card bg-rose-50 border-rose-400' : 'bg-white border-stone-200 hover:border-red-400 hover:shadow-xl transition-all';
+            const alertBadge = pokemon.alert ? `<span class="bg-rose-600 text-white text-[10px] font-black px-3 py-1.5 rounded-b-lg shadow-md flex items-center gap-1 uppercase tracking-widest absolute top-0 left-1/2 transform -translate-x-1/2 z-20 animate-pulse border-x border-b border-rose-700/50">🚨 Incongruencia</span>` : '';
+            
+            const backupStyle = (pokemon.isBackup && !pokemon.isSubCard) ? 'opacity-80 grayscale-[20%]' : ''; 
+            const imgUrl = pokemon.customImg || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.imgId}.png`;
+
+            return `
+                <div class="rounded-2xl p-5 border-2 ${alertClass} ${backupStyle} flex flex-col h-full group relative overflow-hidden bg-white">
+                    ${alertBadge}
+                    <div class="pokeball-watermark"></div>
+
+                    <div class="flex gap-4 items-center mb-4 relative z-10">
+                        <div class="w-20 h-20 shrink-0 bg-gradient-to-br from-stone-100 to-stone-200 rounded-full border-2 border-white shadow-inner flex items-center justify-center p-1 group-hover:scale-110 transition-transform duration-300">
+                            <img src="${imgUrl}" alt="${pokemon.name}" class="w-full h-full object-contain drop-shadow-md" loading="lazy" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'">
+                        </div>
+
+                        <div class="flex-1">
+                            <h3 class="text-lg font-black text-stone-900 leading-tight">${pokemon.name}</h3>
+                            <div class="flex flex-wrap gap-1 mt-1.5">
+                                ${renderTypeBadges(pokemon.type)}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="absolute top-4 right-4 z-10">
+                        <span class="${styles.bg} ${styles.text} ${styles.border} border px-2.5 py-1 rounded-lg text-xs font-black shadow-sm flex items-center gap-1">
+                            ${styles.dot} TIER ${pokemon.tier}
+                        </span>
+                    </div>
+
+                    <div class="mt-auto pt-4 border-t border-stone-200/60 flex justify-between items-end gap-3 relative z-10">
+                        <p class="text-sm text-stone-700 flex-1 leading-snug">
+                            <span class="font-bold text-red-600">Misión:</span> ${pokemon.notes}
+                        </p>
+                        <button onclick="showPokemonStrategy('${pokemon.name}')" class="shrink-0 bg-stone-900 hover:bg-red-600 text-white px-3 py-2 rounded-xl text-xs font-bold shadow-md transition-all transform active:scale-95 flex items-center gap-1.5">
+                            ⚔️ Evaluar
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function generateGroupCardHTML(group) {
+            const styles = getTierStyles(group.tier);
+            const alertClass = 'bg-stone-50 border-stone-300 hover:border-stone-400 hover:shadow-lg transition-all border-dashed cursor-pointer';
+            
+            return `
+                <div class="rounded-2xl p-5 border-2 ${alertClass} flex flex-col h-full group relative overflow-hidden" onclick="toggleGroup('${group.groupId}')">
+                    <div class="pokeball-watermark opacity-50"></div>
+
+                    <div class="flex gap-4 items-center mb-4 relative z-10">
+                        <div class="w-20 h-20 shrink-0 bg-stone-200 rounded-full border-2 border-stone-300 shadow-inner flex items-center justify-center p-3 group-hover:scale-110 transition-transform duration-300">
+                            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png" alt="Pokeball" class="w-full h-full object-contain drop-shadow-sm opacity-80" loading="lazy">
+                        </div>
+
+                        <div class="flex-1">
+                            <h3 class="text-lg font-black text-stone-700 leading-tight">${group.name}</h3>
+                            <div class="flex flex-wrap gap-1 mt-1.5">
+                                <span class="bg-stone-200 text-stone-600 px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wider shadow-sm border border-black/10">COLECCIÓN</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="absolute top-4 right-4 z-10">
+                        <span class="${styles.bg} ${styles.text} ${styles.border} border px-2.5 py-1 rounded-lg text-xs font-black shadow-sm flex items-center gap-1 opacity-80">
+                            ${styles.dot} TIER ${group.tier}
+                        </span>
+                    </div>
+
+                    <div class="mt-auto pt-4 border-t border-stone-200/60 flex justify-between items-end gap-3 relative z-10">
+                        <p class="text-sm text-stone-500 flex-1 leading-snug italic">
+                            ${group.notes}
+                        </p>
+                        <button class="shrink-0 bg-stone-200 group-hover:bg-stone-300 text-stone-800 px-3 py-2 rounded-xl text-xs font-bold shadow-sm transition-all flex items-center gap-1.5 border border-stone-300">
+                            📂 Desplegar
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderGrid() {
+            const grid = document.getElementById('raid-grid');
+            const habitatText = document.getElementById('habitat-info');
+            const habitatIcon = document.getElementById('habitat-icon');
+            
+            const currentData = scheduleData[currentState.day][currentState.block];
+            const currentHabitatName = scheduleData[currentState.day].habitats[currentState.block];
+            const currentHabitatIcon = scheduleData[currentState.day].icons[currentState.block];
+            
+            habitatText.textContent = `Hábitat: ${currentHabitatName}`;
+            habitatIcon.textContent = currentHabitatIcon;
+            
+            grid.innerHTML = '';
+
+            currentData.forEach((pokemon) => {
+                if (pokemon.isGroup) {
+                    if (expandedGroups.has(pokemon.groupId)) {
+                        let subCardsHTML = pokemon.subPokemon.map(sub => generateCardHTML(sub)).join('');
+                        const expandedHTML = `
+                            <div class="col-span-1 md:col-span-2 lg:col-span-3 bg-stone-200/50 rounded-2xl p-4 md:p-6 border-2 border-stone-300 shadow-inner mt-2 mb-2 animate-[fadeIn_0.3s_ease-out]">
+                                <div class="flex justify-between items-center mb-6 pb-3 border-b-2 border-stone-300">
+                                    <h4 class="text-xl font-black text-stone-800 flex items-center gap-2">
+                                        📂 Colección: ${pokemon.name}
+                                    </h4>
+                                    <button onclick="toggleGroup('${pokemon.groupId}')" class="bg-white hover:bg-stone-200 text-stone-800 px-4 py-2 rounded-xl text-sm font-bold shadow-sm transition-colors border border-stone-300 flex items-center gap-2 active:scale-95 transform">
+                                        ❌ Cerrar
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    ${subCardsHTML}
+                                </div>
+                            </div>
+                        `;
+                        grid.innerHTML += expandedHTML;
+                    } else {
+                        grid.innerHTML += generateGroupCardHTML(pokemon);
+                    }
+                } else {
+                    grid.innerHTML += generateCardHTML(pokemon);
+                }
+            });
+        }
+
+        // --- CHART.JS INITIALIZATION ---
+        function initChart() {
+            const ctx = document.getElementById('tierChart').getContext('2d');
+            let counts = { S: 0, A: 0, B: 0, C: 0 };
+            
+            ['sabado', 'domingo'].forEach(day => {
+                ['b1', 'b2', 'b3'].forEach(block => {
+                    scheduleData[day][block].forEach(p => {
+                        if (p.isGroup) {
+                            p.subPokemon.forEach(sub => { if(counts[sub.tier] !== undefined) counts[sub.tier]++; });
+                        } else {
+                            if(counts[p.tier] !== undefined) counts[p.tier]++;
+                        }
+                    });
+                });
+            });
+
+            const chartColors = ['#e11d48', '#f59e0b', '#10b981', '#0ea5e9'];
+            const chartLabels = ['Tier S (Máxima Prioridad)', 'Tier A (Alta Prioridad)', 'Tier B (Alternativas)', 'Tier C (Backup)'];
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: chartLabels,
+                    datasets: [{
+                        data: [counts.S, counts.A, counts.B, counts.C],
+                        backgroundColor: chartColors,
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(28, 25, 23, 0.9)',
+                            titleFont: { size: 13 },
+                            bodyFont: { size: 13 },
+                            padding: 10,
+                            callbacks: {
+                                label: function(context) { return ` ${context.label}: ${context.raw} apariciones`; }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+
+            const legendContainer = document.getElementById('chart-legend');
+            chartLabels.forEach((label, index) => {
+                const item = document.createElement('div');
+                item.className = 'flex items-center gap-2.5';
+                item.innerHTML = `
+                    <div class="mini-pokeball shadow-sm" style="--poke-color: ${chartColors[index]};"></div>
+                    <span class="text-xs text-stone-600 font-semibold leading-tight">${label}</span>
+                `;
+                legendContainer.appendChild(item);
+            });
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            renderGrid();
+        });
+
+        // --- MODAL CONTROLS ---
+        const modal = document.getElementById('gemini-modal');
+        const modalPanel = document.getElementById('gemini-modal-panel');
+        const modalTitle = document.getElementById('gemini-modal-title');
+        const modalContent = document.getElementById('gemini-modal-content');
+
+        function openModal(titleHTML, contentHTML) {
+            modalTitle.innerHTML = titleHTML;
+            modalContent.innerHTML = `<div class="modal-content-anim w-full">${contentHTML}</div>`;
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modalPanel.classList.remove('scale-95');
+                modalPanel.classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeGeminiModal() {
+            modal.classList.add('opacity-0');
+            modalPanel.classList.remove('scale-100');
+            modalPanel.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeGeminiModal();
+        });
+
+        // Feature 1: Pokemon Strategy (Static + Shiny Image)
+        window.showPokemonStrategy = function(pokemonName) {
+            const pokemon = flatPokemonData[pokemonName];
+            if(!pokemon) return;
+
+            // Usa la imagen customizada si existe, sino usa la de la API
+            const shinyUrl = pokemon.customShinyImg || `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/home/shiny/${pokemon.shinyId}.png`;
+            
+            const titleHTML = `⚔️ Estrategia vs ${pokemon.name}`;
+            const parsedStrategy = parseStrategyText(pokemon.strategy);
+
+            const contentHTML = `
+                <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start pt-2">
+                    <div class="relative shrink-0 mt-2 sm:mt-0 mb-4 sm:mb-0">
+                        <div class="absolute -top-2 -left-2 text-2xl z-20">✨</div>
+                        <div class="w-32 h-32 bg-stone-50 rounded-full border-[4px] border-yellow-400 shadow-sm flex items-center justify-center p-2 relative z-10 overflow-visible">
+                            <img src="${shinyUrl}" class="w-full h-full object-contain drop-shadow-sm relative z-10" loading="lazy" onerror="this.src='https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/items/poke-ball.png'" />
+                        </div>
+                    <div class="absolute -bottom-3 left-1/2 transform -translate-x-1/2 bg-yellow-100 border border-yellow-400 text-yellow-800 text-xs font-black px-5 py-1 rounded-full shadow-sm uppercase z-20 tracking-widest whitespace-nowrap">
+                        SHINY
+                    </div>
+                    </div>
+                    <div class="flex-1 text-left sm:pl-2">
+                        <p class="text-stone-700 leading-relaxed text-[15px]">${parsedStrategy}</p>
+                    </div>
+                </div>
+            `;
+            
+            openModal(titleHTML, contentHTML);
+        }
+
+        // Feature 2: Habitat Lore (Static)
+        window.getHabitatLore = function() {
+            const currentBlockKey = currentState.day === 'sabado' ? currentState.block : 'dom_' + currentState.block;
+            const habitatData = habitatsLoreData[currentBlockKey];
+            
+            if(!habitatData) return;
+
+            const titleHTML = `🔍 Reporte: ${habitatData.name.split('(')[0].trim()}`;
+            const parsedLore = parseStrategyText(habitatData.lore);
+
+            const contentHTML = `
+                <div class="pt-2 text-center sm:text-left flex flex-col sm:flex-row gap-6 items-center">
+                    <div class="text-7xl mb-4 sm:mb-0 drop-shadow-md shrink-0 w-24 text-center border-r-0 sm:border-r-2 border-stone-100 pr-0 sm:pr-4">${habitatData.icon}</div>
+                    <p class="text-stone-700 leading-relaxed text-sm md:text-base flex-1">${parsedLore}</p>
+                </div>
+            `;
+            
+            openModal(titleHTML, contentHTML);
+        }
+    </script>
+</body>
+</html>
